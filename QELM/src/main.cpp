@@ -59,8 +59,8 @@ bool parsePLA(const std::string& filename, int& numVars, std::vector<Term>& mint
 
 
 int main() {
-    const std::string inputFile = "../data/input.txt";
-    const std::string outputFile = "../data/output.txt";
+    const std::string inputFile = "./data/input.txt";
+    const std::string outputFile = "./data/output.txt";
 
     int numVars;
     std::vector<Term> minterms;

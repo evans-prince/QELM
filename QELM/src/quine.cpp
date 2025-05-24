@@ -26,23 +26,10 @@ std::vector<Term> runQuine(const std::vector<Term>& minterms, const std::vector<
             break;
         }
 
-        // Save uncombined terms
-        for (const Term& t : current) {
-            if (!t.isUsed()) {
-                primeImplicants.push_back(t);
-            }
-        }
-
         current = nextRound;
     }
 
-    //  Add last round's unused terms (prime implicants)
-    for (const Term& t : current) {
-        if (!t.isUsed()) {
-            primeImplicants.push_back(t);
-        }
-    }
-
+    primeImplicants=nextRound;
     //  Filter only those prime implicants that cover original minterms
     std::vector<Term> essentialPIs;
     std::map<int, std::vector<Term>> chart;
@@ -68,7 +55,6 @@ std::vector<Term> runQuine(const std::vector<Term>& minterms, const std::vector<
     std::set<Term> added;
 
     for (auto it = chart.begin(); it != chart.end(); it++) {
-        int minterm = it->first;
         const std::vector<Term>& terms = it->second;
 
         if (terms.size() == 1) {
