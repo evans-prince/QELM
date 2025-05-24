@@ -8,14 +8,16 @@
 #include <map>
 #include <iostream>
 
+using namespace std;
+
 //Quine McCluskey algorithm
-std::vector<Term> runQuine(const std::vector<Term>& minterms, const std::vector<Term>& dontCares) {
-    std::vector<Term> allTerms = minterms;
+vector<Term> runQuine(const vector<Term>& minterms, const vector<Term>& dontCares) {
+    vector<Term> allTerms = minterms;
     allTerms.insert(allTerms.end(), dontCares.begin(), dontCares.end());
 
-    std::vector<Term> current = allTerms;
-    std::vector<Term> nextRound;
-    std::vector<Term> primeImplicants;
+    vector<Term> current = allTerms;
+    vector<Term> nextRound;
+    vector<Term> primeImplicants;
 
     //  Keep combining until no more combinations possible
     while (true) {
@@ -31,8 +33,8 @@ std::vector<Term> runQuine(const std::vector<Term>& minterms, const std::vector<
 
     primeImplicants=nextRound;
     //  Filter only those prime implicants that cover original minterms
-    std::vector<Term> essentialPIs;
-    std::map<int, std::vector<Term>> chart;
+    vector<Term> essentialPIs;
+    map<int, vector<Term>> chart;
 
     for (const Term& t : primeImplicants) {
         for (int m : t.getCoveredMinterms()) {
@@ -52,10 +54,10 @@ std::vector<Term> runQuine(const std::vector<Term>& minterms, const std::vector<
         }
     }
 
-    std::set<Term> added;
+    set<Term> added;
 
     for (auto it = chart.begin(); it != chart.end(); it++) {
-        const std::vector<Term>& terms = it->second;
+        const vector<Term>& terms = it->second;
 
         if (terms.size() == 1) {
             const Term& epi = terms[0];
@@ -71,14 +73,14 @@ std::vector<Term> runQuine(const std::vector<Term>& minterms, const std::vector<
     // Using Petrick's method
     
     // Step 1: Identify uncovered minterms
-    std::set<int> covered;
+    set<int> covered;
     for (const Term& epi : essentialPIs) {
         for (int m : epi.getCoveredMinterms()) {
             covered.insert(m);
         }
     }
 
-    std::set<int> uncovered;
+    set<int> uncovered;
     for (const auto& [m, _] : chart) {
         if (!covered.count(m)) {
             uncovered.insert(m);
@@ -86,10 +88,10 @@ std::vector<Term> runQuine(const std::vector<Term>& minterms, const std::vector<
     }
 
     // Step 2: Build Petrick expression
-    std::vector<std::set<std::set<int>>> petrickProduct;  // Each inner set is a term (product of implicants)
+    vector<set<set<int>>> petrickProduct;  // Each inner set is a term (product of implicants)
 
-    std::map<Term, int> piToIndex;
-    std::vector<Term> piIndexList;
+    map<Term, int> piToIndex;
+    vector<Term> piIndexList;
     int index = 0;
     for (const Term& pi : primeImplicants) {
         if (piToIndex.find(pi) == piToIndex.end()) {
@@ -99,7 +101,7 @@ std::vector<Term> runQuine(const std::vector<Term>& minterms, const std::vector<
     }
 
     for (int m : uncovered) {
-        std::set<std::set<int>> clause;
+        set<set<int>> clause;
         for (const Term& pi : chart[m]) {
             clause.insert({ piToIndex[pi] });
         }
@@ -107,12 +109,12 @@ std::vector<Term> runQuine(const std::vector<Term>& minterms, const std::vector<
     }
 
     // Step 3: Expand the product
-    std::set<std::set<int>> petrickResult = petrickProduct[0];
+    set<set<int>> petrickResult = petrickProduct[0];
     for (size_t i = 1; i < petrickProduct.size(); i++) {
-        std::set<std::set<int>> newResult;
+        set<set<int>> newResult;
         for (const auto& a : petrickResult) {
             for (const auto& b : petrickProduct[i]) {
-                std::set<int> merged = a;
+                set<int> merged = a;
                 merged.insert(b.begin(), b.end());
                 newResult.insert(merged);
             }
@@ -144,11 +146,11 @@ std::vector<Term> runQuine(const std::vector<Term>& minterms, const std::vector<
     return essentialPIs;
 }
 
-std::string termsToSOP(const std::vector<Term>& terms, int numVars) {
-    std::string result;
+string termsToSOP(const vector<Term>& terms, int numVars) {
+    string result;
 
     for (size_t i = 0; i < terms.size(); i++) {
-        const std::string& bin = terms[i].getBinary();
+        const string& bin = terms[i].getBinary();
 
         for (int j = 0; j < numVars; j++) {
             if (bin[j] == '-') continue;

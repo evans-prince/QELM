@@ -5,15 +5,17 @@
 #include <map>
 #include <set>
 
-std::vector<Term> combineTerms(const std::vector<Term>& terms) {
-    std::map<int, std::vector<Term>> groups = groupByOnes(terms);
-    std::set<Term> combinedSet;
-    std::vector<Term> primeImplicants;
+using namespace std;
+
+vector<Term> combineTerms(const vector<Term>& terms) {
+    map<int, vector<Term>> groups = groupByOnes(terms);
+    set<Term> combinedSet;
+    vector<Term> primeImplicants;
 
     // Loop through adjacent groups
-    for (auto it = groups.begin(); std::next(it) != groups.end(); it++) {
-        const std::vector<Term>& groupA = it->second;
-        const std::vector<Term>& groupB = std::next(it)->second;
+    for (auto it = groups.begin(); next(it) != groups.end(); it++) {
+        const vector<Term>& groupA = it->second;
+        const vector<Term>& groupB = next(it)->second;
 
         for (const Term& termA : groupA) {
             for (const Term& termB : groupB) {

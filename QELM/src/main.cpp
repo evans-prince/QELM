@@ -7,29 +7,31 @@
 #include "term.hpp"
 #include "quine.hpp"
 
+using namespace std;
+
 // Helper to parse PLA format
-bool parsePLA(const std::string& filename, int& numVars, std::vector<Term>& minterms, std::vector<Term>& dontCares) {
-    std::ifstream fin(filename);
+bool parsePLA(const string& filename, int& numVars, vector<Term>& minterms, vector<Term>& dontCares) {
+    ifstream fin(filename);
     if (!fin) {
-        std::cerr << "Error opening input file\n";
+        cerr << "Error opening input file\n";
         return false;
     }
 
-    std::string line;
+    string line;
     numVars = 0;
     minterms.clear();
     dontCares.clear();
 
-    while (std::getline(fin, line)) {
+    while (getline(fin, line)) {
         if (line.empty() || line[0] == '#') continue; // skip comments & empty lines
 
         if (line.substr(0, 3) == ".i ") {
-            numVars = std::stoi(line.substr(3));
+            numVars = stoi(line.substr(3));
         } else if (line.substr(0, 2) == ".e") {
             break; // end of PLA
         } else if (line[0] == '0' || line[0] == '1' || line[0] == '-') {
-            std::istringstream iss(line);
-            std::string inputBits, outputBits;
+            istringstream iss(line);
+            string inputBits, outputBits;
             iss >> inputBits >> outputBits;
 
             // Convert binary string to decimal
@@ -39,7 +41,7 @@ bool parsePLA(const std::string& filename, int& numVars, std::vector<Term>& mint
                 if (c == '1') decimal |= 1;
             }
 
-            std::set<int> covered = {decimal};
+            set<int> covered = {decimal};
             Term t(inputBits, covered, outputBits == "-");
 
             if (outputBits == "1") {
@@ -59,32 +61,32 @@ bool parsePLA(const std::string& filename, int& numVars, std::vector<Term>& mint
 
 
 int main() {
-    const std::string inputFile = "./data/input.txt";
-    const std::string outputFile = "./data/output.txt";
+    const string inputFile = "./data/input.txt";
+    const string outputFile = "./data/output.txt";
 
     int numVars;
-    std::vector<Term> minterms;
-    std::vector<Term> dontCares;
+    vector<Term> minterms;
+    vector<Term> dontCares;
 
     if (!parsePLA(inputFile, numVars, minterms, dontCares)) {
-        std::cerr << "Failed to parse PLA input\n";
+        cerr << "Failed to parse PLA input\n";
         return 1;
     }
 
-    std::ofstream fout(outputFile);
+    ofstream fout(outputFile);
     if (!fout) {
-        std::cerr << "Error opening output file\n";
+        cerr << "Error opening output file\n";
         return 1;
     }
 
     if (numVars > 10) {
         fout << "Too many variables (" << numVars << ") to run Quine-McCluskey minimization.\n";
-        std::cout << "Variables > 10, skipping minimization.\n";
+        cout << "Variables > 10, skipping minimization.\n";
     } else {
-        std::vector<Term> essentialPIs = runQuine(minterms, dontCares);
-        std::string sop = termsToSOP(essentialPIs, numVars);
+        vector<Term> essentialPIs = runQuine(minterms, dontCares);
+        string sop = termsToSOP(essentialPIs, numVars);
         fout << sop << "\n";
-        std::cout << "Minimization done! Check output.txt\n";
+        cout << "Minimization done! Check output.txt\n";
     }
 
     fout.close();
