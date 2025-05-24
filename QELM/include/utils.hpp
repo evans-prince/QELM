@@ -1,13 +1,10 @@
-//
-//  utils.hpp
-//  QELM
-//
-//  Created by PRINCE  on 5/24/25.
-//
-
 #ifndef utils_hpp
 #define utils_hpp
 
-#include <stdio.h>
+#include "term.hpp"
+#include <vector>
+#include <map>
+
+std::map<int, std::vector<Term>> groupByOnes(const std::vector<Term>& terms);
 
 #endif /* utils_hpp */
