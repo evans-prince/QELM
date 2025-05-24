@@ -67,6 +67,79 @@ std::vector<Term> runQuine(const std::vector<Term>& minterms, const std::vector<
             }
         }
     }
+    
+    // Using Petrick's method
+    
+    // Step 1: Identify uncovered minterms
+    std::set<int> covered;
+    for (const Term& epi : essentialPIs) {
+        for (int m : epi.getCoveredMinterms()) {
+            covered.insert(m);
+        }
+    }
+
+    std::set<int> uncovered;
+    for (const auto& [m, _] : chart) {
+        if (!covered.count(m)) {
+            uncovered.insert(m);
+        }
+    }
+
+    // Step 2: Build Petrick expression
+    std::vector<std::set<std::set<int>>> petrickProduct;  // Each inner set is a term (product of implicants)
+
+    std::map<Term, int> piToIndex;
+    std::vector<Term> piIndexList;
+    int index = 0;
+    for (const Term& pi : primeImplicants) {
+        if (piToIndex.find(pi) == piToIndex.end()) {
+            piToIndex[pi] = index++;
+            piIndexList.push_back(pi);
+        }
+    }
+
+    for (int m : uncovered) {
+        std::set<std::set<int>> clause;
+        for (const Term& pi : chart[m]) {
+            clause.insert({ piToIndex[pi] });
+        }
+        petrickProduct.push_back(clause);
+    }
+
+    // Step 3: Expand the product
+    std::set<std::set<int>> petrickResult = petrickProduct[0];
+    for (size_t i = 1; i < petrickProduct.size(); i++) {
+        std::set<std::set<int>> newResult;
+        for (const auto& a : petrickResult) {
+            for (const auto& b : petrickProduct[i]) {
+                std::set<int> merged = a;
+                merged.insert(b.begin(), b.end());
+                newResult.insert(merged);
+            }
+        }
+        petrickResult = newResult;
+    }
+
+    // Step 4: Choose minimal term
+    size_t minSize = SIZE_MAX;
+    for (const auto& term : petrickResult) {
+        if (term.size() < minSize) {
+            minSize = term.size();
+        }
+    }
+
+    for (const auto& term : petrickResult) {
+        if (term.size() == minSize) {
+            for (int i : term) {
+                const Term& selected = piIndexList[i];
+                if (added.find(selected) == added.end()) {
+                    essentialPIs.push_back(selected);
+                    added.insert(selected);
+                }
+            }
+            break;
+        }
+    }
 
     return essentialPIs;
 }
