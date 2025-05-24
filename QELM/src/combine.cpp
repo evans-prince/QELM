@@ -1,4 +1,5 @@
 #include "term.hpp"
+#include "combine.hpp"
 #include "utils.hpp"
 #include <vector>
 #include <map>
