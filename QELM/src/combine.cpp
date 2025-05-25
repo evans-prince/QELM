@@ -11,6 +11,7 @@ vector<Term> combineTerms(const vector<Term>& terms) {
     map<int, vector<Term>> groups = groupByOnes(terms);
     set<Term> combinedSet;
     vector<Term> primeImplicants;
+    
 
     // Loop through adjacent groups
     for (auto it = groups.begin(); next(it) != groups.end(); it++) {
@@ -28,6 +29,8 @@ vector<Term> combineTerms(const vector<Term>& terms) {
             }
         }
     }
+    
+    
 
     // Add uncombined terms (prime implicants)
     for (const auto& group : groups) {

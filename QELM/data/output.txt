@@ -1,1 +1,6 @@
-#
+# Output function 0
+B
+
+# Output function 1
+A'C + AC'
+

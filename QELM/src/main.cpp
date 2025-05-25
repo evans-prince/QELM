@@ -32,7 +32,7 @@ bool parsePLA(const string& filename, int& numVars, int& numOutputs,
             numVars = stoi(line.substr(3));
         } else if (line.substr(0, 3) == ".o ") {
             numOutputs = stoi(line.substr(3));
-            allMinterms.resize(numOutputs);
+            allMinterms.resize(numOutputs);// resize can cause memory bugs
             allDontCares.resize(numOutputs);
         } else if (line.substr(0, 4) == ".ilb") {
             istringstream ss(line.substr(5));
@@ -54,7 +54,7 @@ bool parsePLA(const string& filename, int& numVars, int& numOutputs,
             }
             set<int> covered = {decimal};
 
-            for (int i = 0; i < outputBits.size(); ++i) {
+            for (int i = 0; i < outputBits.size(); i++) {
                 Term t(inputBits, covered, outputBits[i] == '-');
                 if (outputBits[i] == '1') {
                     allMinterms[i].push_back(t);
@@ -92,7 +92,7 @@ int main() {
         fout << "Too many variables (" << numVars << ") to run Quine-McCluskey minimization.\n";
         cout << "Variables > 10, skipping minimization.\n";
     } else {
-        for (int i = 0; i < numOutputs; ++i) {
+        for (int i = 0; i < numOutputs; i++) {
             fout << "# Output function " << (outputLabels.empty() ? to_string(i) : outputLabels[i]) << "\n";
             vector<Term> essentialPIs = runQuine(allMinterms[i], allDontCares[i]);
             string sop = termsToSOP(essentialPIs, numVars);

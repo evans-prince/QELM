@@ -30,9 +30,11 @@ vector<Term> runQuine(const vector<Term>& minterms, const vector<Term>& dontCare
 
         current = nextRound;
     }
+    
 
     primeImplicants=nextRound;
     //  Filter only those prime implicants that cover original minterms
+    // some primeImplicants cover those minterms which are not needed as covered by other so filter those and left them
     vector<Term> essentialPIs;
     map<int, vector<Term>> chart;
 
@@ -71,6 +73,8 @@ vector<Term> runQuine(const vector<Term>& minterms, const vector<Term>& dontCare
     }
     
     // Using Petrick's method
+    // final answer is of the form F= EPI + P
+    // Where P is prime implicants so we need to find P
     
     // Step 1: Identify uncovered minterms
     set<int> covered;
@@ -85,6 +89,10 @@ vector<Term> runQuine(const vector<Term>& minterms, const vector<Term>& dontCare
         if (!covered.count(m)) {
             uncovered.insert(m);
         }
+    }
+    
+    if(uncovered.size()==0){
+        return essentialPIs;
     }
 
     // Step 2: Build Petrick expression
@@ -107,9 +115,15 @@ vector<Term> runQuine(const vector<Term>& minterms, const vector<Term>& dontCare
         }
         petrickProduct.push_back(clause);
     }
+    
 
     // Step 3: Expand the product
-    set<set<int>> petrickResult = petrickProduct[0];
+    
+    if (petrickProduct.empty()) {
+        return essentialPIs;  // Nothing to expand
+    }
+    
+    set<set<int>> petrickResult = petrickProduct[0];// error in this line
     for (size_t i = 1; i < petrickProduct.size(); i++) {
         set<set<int>> newResult;
         for (const auto& a : petrickResult) {
@@ -143,6 +157,8 @@ vector<Term> runQuine(const vector<Term>& minterms, const vector<Term>& dontCare
         }
     }
 
+    // Final cleanup of redundant terms
+    essentialPIs = combineTerms(essentialPIs);
     return essentialPIs;
 }
 
