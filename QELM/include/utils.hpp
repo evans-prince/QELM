@@ -5,6 +5,9 @@
 #include <vector>
 #include <map>
 
-std::map<int, std::vector<Term>> groupByOnes(const std::vector<Term>& terms);
+using namespace std;
 
+map<int, vector<Term>> groupByOnes(const vector<Term>& terms);
+
+int countLiterals(const vector<Term>& terms);
 #endif /* utils_hpp */

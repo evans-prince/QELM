@@ -8,8 +8,15 @@
 
 #include "term.hpp"
 #include "quine.hpp"
+#include "espresso.hpp"
 
 using namespace std;
+
+// Function to minimize using Espresso (multi-pass)
+vector<Term> minimizeEspresso(const vector<Term>& minterms, const vector<Term>& dontCares, int numVars, int passes = 5) {
+    return runEspressoMultiple(minterms, dontCares, numVars, passes);
+}
+
 
 // Helper to parse PLA format
 bool parsePLA(const string& filename, int& numVars, int& numOutputs,
@@ -87,10 +94,30 @@ int main() {
         cerr << "Error opening output file\n";
         return 1;
     }
+    
+    fout << "# Minimization Report \n";
+    fout << "# Variables: " << numVars << "\n\n";
 
     if (numVars > 10) {
-        fout << "Too many variables (" << numVars << ") to run Quine-McCluskey minimization.\n";
-        cout << "Variables > 10, skipping minimization.\n";
+        int passes;
+        cout << "\n You're using Espresso minimization for more than 10 variables." << endl;
+        cout << " The number of passes controls how many variations are tried." << endl;
+        cout << " More passes = better result, but takes more time!" << endl;
+        cout << " Enter number of passes to use (e.g. 5, 10, 20): ";
+        cin >> passes;
+        if (passes <= 0) {
+            cout << " Invalid input! Using default passes = 5\n";
+            passes = 5;
+        }
+
+        fout << "Using Espresso Minimizer for variables > 10\n\n";
+        for (int i = 0; i < numOutputs; i++) {
+            fout << "# Output function " << (outputLabels.empty() ? to_string(i) : outputLabels[i]) << "\n";
+            vector<Term> minimized = minimizeEspresso(allMinterms[i], allDontCares[i], numVars, passes);
+            vector<string> expressions = espressoTermsToSOP({minimized}, numVars);
+            fout << expressions[0] << "\n\n";
+        }
+        cout << "Espresso minimization complete!\n";
     } else {
         for (int i = 0; i < numOutputs; i++) {
             fout << "# Output function " << (outputLabels.empty() ? to_string(i) : outputLabels[i]) << "\n";

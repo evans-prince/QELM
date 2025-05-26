@@ -10,3 +10,17 @@ map<int, vector<Term>> groupByOnes(const vector<Term>& terms) {
     }
     return grouped;
 }
+
+
+int countLiterals(const vector<Term>& terms) {
+    int total = 0;
+    for (const Term& t : terms) {
+        string bin = t.getBinary();
+        for (char c : bin) {
+            if (c != '-') {
+                total++;
+            }
+        }
+    }
+    return total;
+}
